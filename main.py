@@ -41,27 +41,27 @@ page_footer = """
 </html>
 """
 
-def build_page():
+def build_page(username_error='', password_error ='', email_error = ''):
     
     u_name_label = "<label>Username</label>"
-    u_name_label = "<input type= "text" name= "username" />"
+    u_name = "<input type= 'text' name= 'username' value= '"/>"
 
     p_label = "<label>Password</label>"
-    pass_ = "<input type = "password" name = "password"  />"
+    pass_ = "<input type = 'password' name = 'password'  />"
 
     ver_label = "<label>Verify Password</label>"
-    p_verify = "<input type = "password" name = "verify" />"
+    p_verify = "<input type = 'password' name = 'verify' />"
 
     email_label = "<label>Email(optional)</label>"
-    email = "<input type = "email" name = "email" />"
+    email = "<input type = 'email' name = 'email' value='' />"
 
     header = "<h2>Signup</h2>"
     submit = "<input type ='submit'/>"
 
-    form = "<form action= "/welcome" method="post">" + \
-            u_name_label + u_name + "<span class="error"></span>" + "<br>" + \
-            p_label + pass_ +"<br>" + "<span class="error"></span>" + "<br>" + \
-            ver_label + p_verify + "<span class="error"></span>" + "<br>" + \
+    form = "<form action= '/' method='post'>" + \
+            u_name_label + u_name + "<span class='error'>%"error"s</span>" + "<br>" + \
+            p_label + pass_ +"<br>" + "<span class='error'>%"error"s</span>" + "<br>" + \
+            ver_label + p_verify + "<span class='error'>%"error"s</span>" + "<br>" + \
             submit + "</form>"
 
     return header + form
@@ -86,32 +86,38 @@ class Index(webapp2.RequestHandler):
 
     def post(self):
         have_error = False
-        username = self.request.get("username")
-        password = self.request.get("password")
-        verify = self.request.get("verify")
-        email = self.request.get("email")
+        esc_username = cgi.escape(self.request.get('username'))
+        esc_password = cgi.escape(self.request.get('password'))
+        esc_verify = cgi.escape(self.request.get('verify'))
+        esc_email = cgi.escape(self.request.get('email'))
 
-        params = dict(username=username,
-                      email=email)
+        error_username = ''
+        error_password = ''
+        error_verify = ''
+        error_email = ''
 
-        if not valid_username(username):
-            params['error_username'] = "That's not a valid username."
+
+        if not valid_username(esc_username):
+            error_username = "That's not a valid username."
             have_error = True
 
-        if not valid_password(password):
-            params['error_password'] = "That wasn't a valid password."
+        if not valid_password(esc_password):
+            error_password = "That wasn't a valid password."
             have_error = True
 
         elif password != verify:
-            params['error_verify'] = "Your passwords didn't match."
+            error_verify = "Your passwords didn't match."
             have_error = True
 
         if not valid_email(email):
-            params['error_email'] = "That's not a valid email."
+            error_email = "That's not a valid email."
             have_error = True
 
         if have_error:
-            self.render('signup-form.html', **params)
+            page_content = build_page(error_username, error_password,error_verify, error_email)
+            content = page_header + page_content + page_footer
+            self.response.write(content)
+
         else:
             self.redirect('/welcome?username=' + username)
 
@@ -119,10 +125,9 @@ class Index(webapp2.RequestHandler):
 class Welcome(webapp2.RequestHandler):
     def get(self):
         username = self.request.get('username')
-        greeting = "Welcome, " + username
-        content = "<p>" + greeting + "</p>"
+        page_content = "<p>Welcome %s</p>"
+        content = page_header + page_content + page_footer
         self.response.write(content)
-
 
 app = webapp2.WSGIApplication([
     ('/', Index),
