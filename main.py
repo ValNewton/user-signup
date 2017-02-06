@@ -41,30 +41,31 @@ page_footer = """
 </html>
 """
 
-def build_page(username_error='', password_error ='', email_error = ''):
-    
+def build_page(user_val='', email_val='', error_username='', error_password='', error_verify='', error_email=''):
     u_name_label = "<label>Username</label>"
-    u_name = "<input type= 'text' name= 'username' value= '"/>"
+    u_name = "<input type= 'text' name= 'username' value = "'+ user_val + '" />"
 
     p_label = "<label>Password</label>"
-    pass_ = "<input type = 'password' name = 'password'  />"
+    pass_ = "<input type = 'password' name = 'password' />"
 
     ver_label = "<label>Verify Password</label>"
     p_verify = "<input type = 'password' name = 'verify' />"
 
     email_label = "<label>Email(optional)</label>"
-    email = "<input type = 'email' name = 'email' value='' />"
+    email = "<input type = 'email' name ='email' value ="'+ email_val +'" />"
 
     header = "<h2>Signup</h2>"
     submit = "<input type ='submit'/>"
 
     form = "<form action= '/' method='post'>" + \
-            u_name_label + u_name + "<span class='error'>%"error"s</span>" + "<br>" + \
-            p_label + pass_ +"<br>" + "<span class='error'>%"error"s</span>" + "<br>" + \
-            ver_label + p_verify + "<span class='error'>%"error"s</span>" + "<br>" + \
-            submit + "</form>"
+           u_name_label + u_name + "<span class='error'>" + error_username + "</span>" + "<br>" + \
+           p_label + pass_ + "<span class='error'>" + error_password + " </span>" + "<br>" + \
+           ver_label + p_verify + "<span class='error'>" + error_verify + "</span>" + "<br>" + \
+           email_label + email + "<span class='error'>" + error_email + "</span>" + "<br>" + \
+           submit + "</form>"
 
     return header + form
+
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
@@ -105,27 +106,27 @@ class Index(webapp2.RequestHandler):
             error_password = "That wasn't a valid password."
             have_error = True
 
-        elif password != verify:
+        elif esc_password != esc_verify:
             error_verify = "Your passwords didn't match."
             have_error = True
 
-        if not valid_email(email):
+        if not valid_email(esc_email) and not esc_email == '' :
             error_email = "That's not a valid email."
             have_error = True
 
         if have_error:
-            page_content = build_page(error_username, error_password,error_verify, error_email)
+            page_content = build_page(esc_username, esc_email, error_username, error_password, error_verify, error_email)
             content = page_header + page_content + page_footer
             self.response.write(content)
 
         else:
-            self.redirect('/welcome?username=' + username)
+            self.redirect('/welcome?username=' + esc_username)
 
 
 class Welcome(webapp2.RequestHandler):
     def get(self):
         username = self.request.get('username')
-        page_content = "<p>Welcome %s</p>"
+        page_content = "<p>Welcome " + username + "</p>"
         content = page_header + page_content + page_footer
         self.response.write(content)
 
