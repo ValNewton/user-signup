@@ -25,7 +25,7 @@ page_header = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>FlickList</title>
+    <title>User-Signup</title>
     <style>
         .error {
             color: red;
@@ -43,7 +43,7 @@ page_footer = """
 
 def build_page(user_val='', email_val='', error_username='', error_password='', error_verify='', error_email=''):
     u_name_label = "<label>Username</label>"
-    u_name = "<input type= 'text' name= 'username' value = "'+ user_val + '" />"
+    u_name = "<input type= 'text' name= 'username' value = '"+ user_val + "' />"
 
     p_label = "<label>Password</label>"
     pass_ = "<input type = 'password' name = 'password' />"
@@ -52,7 +52,7 @@ def build_page(user_val='', email_val='', error_username='', error_password='', 
     p_verify = "<input type = 'password' name = 'verify' />"
 
     email_label = "<label>Email(optional)</label>"
-    email = "<input type = 'email' name ='email' value ="'+ email_val +'" />"
+    email = "<input type = 'email' name ='email' value =' "+ email_val + "' />"
 
     header = "<h2>Signup</h2>"
     submit = "<input type ='submit'/>"
@@ -126,7 +126,7 @@ class Index(webapp2.RequestHandler):
 class Welcome(webapp2.RequestHandler):
     def get(self):
         username = self.request.get('username')
-        page_content = "<p>Welcome " + username + "</p>"
+        page_content = "<p>Welcome, " + username + "</p>"
         content = page_header + page_content + page_footer
         self.response.write(content)
 
